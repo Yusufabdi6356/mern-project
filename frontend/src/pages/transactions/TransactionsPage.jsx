@@ -13,7 +13,9 @@ export default function TransactionsPage() {
   const [filters, setFilters] = useState({ type: 'all', category: 'all' });
   const [editing, setEditing] = useState(null);
 
-  const params = Object.fromEntries(Object.entries(filters).filter(([, value]) => value !== 'all'));
+  const params = {};
+  if (filters.type !== 'all') params.type = filters.type;
+  if (filters.category !== 'all') params.category = filters.category;
 
   const transactionsQuery = useQuery({
     queryKey: ['transactions', params],
@@ -83,13 +85,14 @@ export default function TransactionsPage() {
         )
       )}
 
-      <TransactionForm
-        key={editing?._id || editing || 'closed'}
-        open={Boolean(editing)}
-        onOpenChange={(open) => !open && setEditing(null)}
-        transaction={editing === 'new' ? null : editing}
-        categories={categories}
-      />
+      {editing && (
+        <TransactionForm
+          open
+          onOpenChange={() => setEditing(null)}
+          transaction={editing === 'new' ? null : editing}
+          categories={categories}
+        />
+      )}
     </div>
   );
 }

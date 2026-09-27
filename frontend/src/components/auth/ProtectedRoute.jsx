@@ -8,7 +8,7 @@ import useAuthStore from '@/lib/store/authStore';
 export default function ProtectedRoute({ children, adminOnly = false }) {
   const { token, user, setUser, clearAuth } = useAuthStore();
 
-  const { data, isLoading, isError } = useQuery({
+  const { data, error, isLoading } = useQuery({
     queryKey: ['profile'],
     queryFn: async () => (await api.get('/auth/profile')).data.user,
     enabled: Boolean(token),
@@ -20,10 +20,10 @@ export default function ProtectedRoute({ children, adminOnly = false }) {
   }, [data, setUser]);
 
   useEffect(() => {
-    if (isError) clearAuth();
-  }, [isError, clearAuth]);
+    if (error?.response?.status === 401) clearAuth();
+  }, [error, clearAuth]);
 
-  if (!token || isError) return <Navigate to="/login" replace />;
+  if (!token) return <Navigate to="/login" replace />;
 
   if (isLoading) {
     return (

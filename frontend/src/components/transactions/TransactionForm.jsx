@@ -25,7 +25,6 @@ export default function TransactionForm({ open, onOpenChange, transaction, categ
   const [error, setError] = useState('');
 
   const names = categories.filter(c => c.type === form.type).map(c => c.name);
-  if (form.category && !names.includes(form.category)) names.unshift(form.category);
 
   const saveMutation = useMutation({
     mutationFn: async (data) => transaction

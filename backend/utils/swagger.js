@@ -1,4 +1,5 @@
 import swaggerJSDoc from 'swagger-jsdoc';
+import { paths } from './swaggerPaths.js';
 
 const servers = [{ url: `http://localhost:${process.env.PORT || 3000}` }];
 
@@ -15,6 +16,7 @@ const options = {
       description: 'Track income and expenses, organize categories and view monthly summaries'
     },
     servers,
+    paths,
     components: {
       securitySchemes: {
         bearerAuth: {
@@ -25,7 +27,7 @@ const options = {
       }
     }
   },
-  apis: ['./routes/*.js']
+  apis: []
 };
 
 export const swaggerSpec = swaggerJSDoc(options);
