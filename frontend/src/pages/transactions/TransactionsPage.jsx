@@ -16,6 +16,7 @@ export default function TransactionsPage() {
   const params = {};
   if (filters.type !== 'all') params.type = filters.type;
   if (filters.category !== 'all') params.category = filters.category;
+  const isFiltered = Object.keys(params).length > 0;
 
   const transactionsQuery = useQuery({
     queryKey: ['transactions', params],
@@ -74,11 +75,12 @@ export default function TransactionsPage() {
 
       {transactionsQuery.isLoading && <Loader className="animate-spin" />}
       {transactionsQuery.isError && <p className="text-destructive">{extractErrorMessage(transactionsQuery.error)}</p>}
+      {categoriesQuery.isError && <p className="text-destructive">{extractErrorMessage(categoriesQuery.error)}</p>}
 
       {transactionsQuery.isSuccess && (
         transactions.length === 0 ? (
           <p className="rounded-lg border border-dashed p-8 text-center text-muted-foreground">
-            No transactions found. Add one to start tracking your money.
+            {isFiltered ? 'No transactions match these filters.' : 'No transactions yet. Add one to start tracking your money.'}
           </p>
         ) : (
           <TransactionTable transactions={transactions} onEdit={setEditing} />

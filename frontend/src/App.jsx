@@ -15,6 +15,11 @@ function GuestRoute({ children }) {
   return token ? <Navigate to="/" replace /> : children;
 }
 
+function AdminRoute({ children }) {
+  const user = useAuthStore(state => state.user);
+  return user?.role === 'admin' ? children : <Navigate to="/" replace />;
+}
+
 export default function App() {
   return (
     <Routes>
@@ -25,7 +30,7 @@ export default function App() {
         <Route path="transactions" element={<TransactionsPage />} />
         <Route path="categories" element={<CategoriesPage />} />
         <Route path="profile" element={<ProfilePage />} />
-        <Route path="admin" element={<ProtectedRoute adminOnly><AdminPage /></ProtectedRoute>} />
+        <Route path="admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

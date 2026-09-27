@@ -1,10 +1,23 @@
+import Category from '../models/Category.js';
 import Transaction from '../models/Transaction.js';
 
 const signedAmount = (amount, type) => {
   return type === 'expense' ? -Math.abs(amount) : Math.abs(amount);
 };
 
+const categoryExists = (name, type, userId) => {
+  return Category.exists({ name, type, $or: [{ user: null }, { user: userId }] });
+};
+
+const invalidCategory = (res, type) => {
+  return res.status(400).json({ success: false, message: `Pick one of your ${type} categories` });
+};
+
 export const createTransaction = async (req, res) => {
+  if (!(await categoryExists(req.body.category, req.body.type, req.user._id))) {
+    return invalidCategory(res, req.body.type);
+  }
+
   const transaction = await Transaction.create({
     ...req.body,
     amount: signedAmount(req.body.amount, req.body.type),
@@ -26,16 +39,15 @@ export const getTransactions = async (req, res) => {
 
 export const getMonthlySummary = async (req, res) => {
   const now = new Date();
-  const [year, month] = (req.query.month || `${now.getFullYear()}-${now.getMonth() + 1}`)
-    .split('-')
-    .map(Number);
+  const month = req.query.month || `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 
-  if (!year || !month || month < 1 || month > 12) {
+  if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(month)) {
     return res.status(400).json({ success: false, message: 'Month must be in YYYY-MM format' });
   }
 
-  const start = new Date(Date.UTC(year, month - 1, 1));
-  const end = new Date(Date.UTC(year, month, 1));
+  const [year, monthNumber] = month.split('-').map(Number);
+  const start = new Date(Date.UTC(year, monthNumber - 1, 1));
+  const end = new Date(Date.UTC(year, monthNumber, 1));
 
   const categories = await Transaction.aggregate([
     { $match: { user: req.user._id, date: { $gte: start, $lt: end } } },
@@ -59,7 +71,7 @@ export const getMonthlySummary = async (req, res) => {
     .reduce((sum, item) => sum + item.total, 0);
 
   res.json({
-    month: `${year}-${String(month).padStart(2, '0')}`,
+    month,
     totalIncome,
     totalExpense,
     balance: totalIncome - totalExpense,
@@ -75,6 +87,11 @@ export const updateTransaction = async (req, res) => {
   }
 
   Object.assign(transaction, req.body);
+
+  if (!(await categoryExists(transaction.category, transaction.type, req.user._id))) {
+    return invalidCategory(res, transaction.type);
+  }
+
   transaction.amount = signedAmount(transaction.amount, transaction.type);
   await transaction.save();
 

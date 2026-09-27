@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Loader } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -14,12 +14,14 @@ import { extractErrorMessage } from '@/util/errorUtils';
 export default function RegisterForm() {
   const setAuth = useAuthStore(state => state.setAuth);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [form, setForm] = useState({ name: '', email: '', password: '', confirmPassword: '' });
   const [error, setError] = useState('');
 
   const registerMutation = useMutation({
     mutationFn: async (userData) => (await api.post('/auth/register', userData)).data,
     onSuccess: ({ user, token }) => {
+      queryClient.clear();
       setAuth(user, token);
       toast.success('Account created');
       navigate('/');

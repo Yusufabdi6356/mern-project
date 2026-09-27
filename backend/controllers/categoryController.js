@@ -12,7 +12,7 @@ export const createCategory = async (req, res) => {
   const exists = await Category.findOne({
     name: req.body.name,
     $or: [{ user: null }, { user: req.user._id }]
-  });
+  }).collation({ locale: 'en', strength: 2 });
 
   if (exists) {
     return res.status(409).json({ success: false, message: 'Category already exists' });

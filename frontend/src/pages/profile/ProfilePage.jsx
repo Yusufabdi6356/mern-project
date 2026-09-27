@@ -28,8 +28,20 @@ export default function ProfilePage() {
 
   const handleFile = (e) => {
     const file = e.target.files[0];
-    if (file) uploadMutation.mutate(file);
     e.target.value = '';
+    if (!file) return;
+
+    if (!['image/jpeg', 'image/png'].includes(file.type)) {
+      toast.error('Only JPG and PNG images are allowed');
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error('Image must be 2 MB or smaller');
+      return;
+    }
+
+    uploadMutation.mutate(file);
   };
 
   return (

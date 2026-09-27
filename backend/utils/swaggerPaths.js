@@ -1,3 +1,5 @@
+const idParam = { in: 'path', name: 'id', required: true, description: 'Transaction ID', schema: { type: 'string' } };
+
 export const paths = {
   '/upload/profile-picture': {
     post: {
@@ -18,9 +20,9 @@ export const paths = {
         }
       },
       responses: {
-        '201': { description: 'Returns the Cloudinary file URL' },
-        '400': { description: 'No file uploaded' },
-        '401': { description: 'No token provided' }
+        201: { description: 'Returns the Cloudinary file URL' },
+        400: { description: 'No file uploaded' },
+        401: { description: 'No token provided' }
       }
     }
   },
@@ -48,8 +50,8 @@ export const paths = {
         }
       },
       responses: {
-        '201': { description: 'Transaction created' },
-        '400': { description: 'Validation failed' }
+        201: { description: 'Transaction created' },
+        400: { description: 'Validation failed or category does not match the type' }
       }
     },
     get: {
@@ -69,7 +71,7 @@ export const paths = {
         }
       ],
       responses: {
-        '200': { description: 'A list of transactions' }
+        200: { description: 'A list of transactions' }
       }
     }
   },
@@ -87,8 +89,8 @@ export const paths = {
         }
       ],
       responses: {
-        '200': { description: 'Monthly totals grouped by category' },
-        '400': { description: 'Month must be in YYYY-MM format' }
+        200: { description: 'Monthly totals grouped by category' },
+        400: { description: 'Month must be in YYYY-MM format' }
       }
     }
   },
@@ -97,15 +99,7 @@ export const paths = {
       summary: 'Edit a transaction by ID',
       tags: ['Transactions'],
       security: [{ bearerAuth: [] }],
-      parameters: [
-        {
-          in: 'path',
-          name: 'id',
-          required: true,
-          description: 'Transaction ID',
-          schema: { type: 'string' }
-        }
-      ],
+      parameters: [idParam],
       requestBody: {
         required: true,
         content: {
@@ -124,26 +118,19 @@ export const paths = {
         }
       },
       responses: {
-        '200': { description: 'Transaction updated' },
-        '404': { description: 'Transaction not found' }
+        200: { description: 'Transaction updated' },
+        400: { description: 'Validation failed or category does not match the type' },
+        404: { description: 'Transaction not found' }
       }
     },
     delete: {
       summary: 'Delete a transaction by ID',
       tags: ['Transactions'],
       security: [{ bearerAuth: [] }],
-      parameters: [
-        {
-          in: 'path',
-          name: 'id',
-          required: true,
-          description: 'Transaction ID',
-          schema: { type: 'string' }
-        }
-      ],
+      parameters: [idParam],
       responses: {
-        '200': { description: 'Transaction deleted' },
-        '404': { description: 'Transaction not found' }
+        200: { description: 'Transaction deleted' },
+        404: { description: 'Transaction not found' }
       }
     }
   },
@@ -153,7 +140,7 @@ export const paths = {
       tags: ['Categories'],
       security: [{ bearerAuth: [] }],
       responses: {
-        '200': { description: 'A list of categories' }
+        200: { description: 'A list of categories' }
       }
     },
     post: {
@@ -176,8 +163,8 @@ export const paths = {
         }
       },
       responses: {
-        '201': { description: 'Category created' },
-        '409': { description: 'Category already exists' }
+        201: { description: 'Category created' },
+        409: { description: 'Category already exists' }
       }
     }
   },
@@ -202,9 +189,9 @@ export const paths = {
         }
       },
       responses: {
-        '201': { description: 'User registered, returns JWT token' },
-        '400': { description: 'Validation failed' },
-        '409': { description: 'Email already registered' }
+        201: { description: 'User registered, returns JWT token' },
+        400: { description: 'Validation failed' },
+        409: { description: 'Email already registered' }
       }
     }
   },
@@ -228,8 +215,8 @@ export const paths = {
         }
       },
       responses: {
-        '200': { description: 'Login successful, returns JWT token' },
-        '401': { description: 'Invalid email or password' }
+        200: { description: 'Login successful, returns JWT token' },
+        401: { description: 'Invalid email or password' }
       }
     }
   },
@@ -239,8 +226,8 @@ export const paths = {
       tags: ['Auth'],
       security: [{ bearerAuth: [] }],
       responses: {
-        '200': { description: 'Current user info' },
-        '401': { description: 'No token provided' }
+        200: { description: 'Current user info' },
+        401: { description: 'No token provided' }
       }
     }
   },
@@ -250,8 +237,8 @@ export const paths = {
       tags: ['Admin'],
       security: [{ bearerAuth: [] }],
       responses: {
-        '200': { description: 'App overview' },
-        '403': { description: 'Access denied' }
+        200: { description: 'App overview' },
+        403: { description: 'Access denied' }
       }
     }
   }

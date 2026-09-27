@@ -2,7 +2,12 @@ const currency = new Intl.NumberFormat('en-US', { style: 'currency', currency: '
 
 export const money = (value) => currency.format(value);
 
-export const today = () => new Date().toLocaleDateString('en-CA');
+const pad = (number) => String(number).padStart(2, '0');
+
+export const today = () => {
+  const date = new Date();
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+};
 
 export const thisMonth = () => today().slice(0, 7);
 

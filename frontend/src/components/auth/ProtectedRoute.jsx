@@ -5,10 +5,10 @@ import { Loader } from 'lucide-react';
 import api from '@/lib/api/apiClient';
 import useAuthStore from '@/lib/store/authStore';
 
-export default function ProtectedRoute({ children, adminOnly = false }) {
-  const { token, user, setUser, clearAuth } = useAuthStore();
+export default function ProtectedRoute({ children }) {
+  const { token, user, setUser } = useAuthStore();
 
-  const { data, error, isLoading } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ['profile'],
     queryFn: async () => (await api.get('/auth/profile')).data.user,
     enabled: Boolean(token),
@@ -19,21 +19,15 @@ export default function ProtectedRoute({ children, adminOnly = false }) {
     if (data) setUser(data);
   }, [data, setUser]);
 
-  useEffect(() => {
-    if (error?.response?.status === 401) clearAuth();
-  }, [error, clearAuth]);
-
   if (!token) return <Navigate to="/login" replace />;
 
-  if (isLoading) {
+  if (isLoading || !user) {
     return (
       <div className="flex h-screen items-center justify-center">
         <Loader className="animate-spin" />
       </div>
     );
   }
-
-  if (adminOnly && (data || user)?.role !== 'admin') return <Navigate to="/" replace />;
 
   return children;
 }
